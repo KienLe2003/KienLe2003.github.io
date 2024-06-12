@@ -1,5 +1,5 @@
 # Use the official OpenJDK base image with Java
-FROM openjdk:11-jdk
+FROM openjdk:8-jdk
 
 # Set environment variables for Spark
 ENV SPARK_VERSION=3.0.1
