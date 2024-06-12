@@ -1,0 +1,66 @@
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.config('spark.jars.packages', 'org.xerial:sqlite-jdbc:3.46.0.0').getOrCreate()
+df = spark.read.format('jdbc').options(driver='org.sqlite.JDBC', dbtable='Sales',url='jdbc:sqlite:/Sales_record.db').load()
+df.show()
+
+
+
+
+# Create operation
+from pyspark.sql import Row
+
+# Create a new row
+new_row = Row(Region = 'Asia', Contry='Japane', Sold = 234.3, Price = 344.45, Cost=345.4, Profit=101020.03)
+
+# Convert the Row into a DataFrame
+new_df = spark.createDataFrame([new_row], schema=df.schema)
+
+# Append the new DataFrame to the existing DataFrame
+df = df.union(new_df)
+
+# Show the updated DataFrame
+df.tail(10)
+
+
+
+
+
+# Read operation
+filtered_df = df.filter(df.Sold > 210)
+
+# Search high Sold price.
+filtered_df.show()
+print("Sold higher 100: ", filtered_df.count())
+
+
+
+
+
+# Update operation
+from pyspark.sql.functions import when
+
+# Update the last row column with Sold = 234
+df = df.withColumn('Sold', when((df.Region == 'Asia') & \
+                                 (df.Country == 'Vietnam') & \
+				 (df.Cost == 324) & \
+				 (df.Price == 23432.3) & \
+				 (df.Profit == 452453.3), 324).otherwise(df.sold))   
+				
+
+# Show the updated DataFrame
+df.tail(10)
+
+
+
+
+
+
+# Delete Operation
+df = df.filter(~((df.Region == 'Asia') &
+                 (df.Country == 'Vietnam') & 
+                 (df.Price == 134.28) & 
+                 (df.Cost == 32344) & 
+                 (df.Sold == 503341) & 
+                 (df.Profit == 1102356))) # Try delete the first row
+
+df.head(5)
